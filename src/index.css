@@ -1589,3 +1589,33 @@
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50%       { transform: translateX(-50%) translateY(10px); }
 }
+
+
+/* ── Mobile Close Button ── */
+.menu-close-btn {
+  display: none; /* desktop-এ লুকানো থাকবে */
+}
+
+@media (max-width: 768px) {
+  .menu-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;       /* right side-এ যাবে */
+    margin-bottom: 12px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color, #fff);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .menu-close-btn:hover {
+    background: rgba(0, 238, 255, 0.2);
+    color: #00eeff;
+  }
+}
