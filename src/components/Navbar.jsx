@@ -69,6 +69,32 @@ export default function Navbar() {
     return () => observer.disconnect()
   }, [])
 
+  // ── Outside Click + Escape Key — mobile menu বন্ধ করে ──
+  useEffect(() => {
+    if (!menuOpen) return // menu বন্ধ থাকলে listener দরকার নেই
+
+    const handleClickOutside = (e) => {
+      // header-এর বাইরে click করলে menu বন্ধ হবে
+      if (!e.target.closest('header')) {
+        setMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside) // mobile touch support
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [menuOpen])
+
   // ── Dark / Light Mode Toggle ──
   // html element-এ data-theme="light" বা "dark" set করে।
   // index.css এ [data-theme="light"] দিয়ে color পাল্টানো হয়।
