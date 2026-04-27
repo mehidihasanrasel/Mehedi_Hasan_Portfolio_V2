@@ -1,0 +1,1591 @@
+/* ══════════════════════════════════════════════════════════════
+   index.css — Portfolio Global Stylesheet
+   
+   Structure:
+   1.  Tailwind imports
+   2.  CSS Variables (Dark & Light Mode color system)
+   3.  Base styles (reset, scrollbar, body)
+   4.  Header / Navbar
+   5.  Theme Toggle Button
+   6.  Home Section
+   7.  About Section
+   8.  Stats Section (Counter)
+   9.  Skills Section
+   10. Services Section
+   11. Portfolio Section (with Filter)
+   12. Testimonials Section
+   13. Contact Section
+   14. Footer
+   15. Scroll Reveal Animation
+   16. Responsive (Mobile)
+══════════════════════════════════════════════════════════════ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════
+   ② CSS Variables — Color System
+   
+   :root[data-theme="dark"]  → Default dark mode colors
+   :root[data-theme="light"] → Light mode colors
+   
+   Navbar.jsx এ darkMode state পরিবর্তন হলে
+   html element-এ data-theme attribute বদলায়,
+   এবং browser automatically নিচের variables ব্যবহার করে।
+══════════════════════════════════════════════════════════════ */
+:root,
+:root[data-theme="dark"] {
+  --bg-primary:    #1f242d;   /* প্রধান background (গাঢ় নীল-ধূসর) */
+  --bg-secondary:  #323946;   /* secondary background (একটু হালকা) */
+  --bg-card:       #2a3040;   /* card/box background */
+  --text-primary:  #ffffff;   /* প্রধান text color */
+  --text-secondary:#cbd5e1;   /* secondary text (হালকা ধূসর) */
+  --text-muted:    #94a3b8;   /* muted/placeholder text */
+  --accent:        #00eeff;   /* accent color (cyan) */
+  --accent-dark:   #1f242d;   /* accent button-এর text color */
+  --border:        rgba(0, 238, 255, 0.2);
+  --shadow:        rgba(0, 0, 0, 0.5);
+  --scrollbar-bg:  #1f242d;
+}
+
+:root[data-theme="light"] {
+  --bg-primary:    #f0f4f8;   /* হালকা নীলাভ সাদা */
+  --bg-secondary:  #e2e8f0;   /* একটু গাঢ় সাদা */
+  --bg-card:       #ffffff;   /* card সাদা */
+  --text-primary:  #1e293b;   /* গাঢ় নীল text */
+  --text-secondary:#475569;   /* মাঝারি নীল text */
+  --text-muted:    #64748b;   /* muted text */
+  --accent:        #0077cc;   /* light mode-এ accent একটু গাঢ় নীল */
+  --accent-dark:   #ffffff;   /* accent button-এর text color */
+  --border:        rgba(0, 119, 204, 0.2);
+  --shadow:        rgba(0, 0, 0, 0.15);
+  --scrollbar-bg:  #e2e8f0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ③ Base Styles — Reset, Body, Scrollbar
+══════════════════════════════════════════════════════════════ */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth; /* সব anchor link-এ smooth scroll */
+  }
+
+  body {
+    background:  var(--bg-primary);
+    color:       var(--text-primary);   /* ← CSS variable, theme বদলালে সব text রং বদলায় */
+    font-family: 'Poppins', sans-serif;
+    /* background + color দুটোই transition করে → smooth theme switch */
+    transition:  background 0.4s ease, color 0.4s ease;
+  }
+
+  /* সব heading, paragraph, span — inherit করে body থেকে color নেবে */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+  }
+  p {
+    color: var(--text-secondary);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar       { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ④ Header / Navbar
+══════════════════════════════════════════════════════════════ */
+@layer components {
+
+  .header {
+    @apply fixed top-0 left-0 w-full z-50 flex items-center justify-between px-[9%] py-5;
+    background:  var(--bg-primary);
+    transition:  all 0.3s ease;
+  }
+
+  /* scroll করলে header-এ shadow আসে */
+  .header.sticky {
+    box-shadow: 0 0.1rem 1rem var(--shadow);
+  }
+
+  /* Logo */
+  .logo {
+    @apply text-2xl font-bold no-underline;
+    color: var(--text-primary);
+  }
+  .logo span { color: var(--accent); } /* dot টা accent color-এ */
+
+  /* Nav links */
+  .navbar a {
+    @apply text-base font-medium ml-9 no-underline;
+    color:      var(--text-primary);
+    transition: color 0.3s;
+  }
+  .navbar a:hover,
+  .navbar a.active {
+    color: var(--accent); /* hover বা active হলে accent color */
+  }
+
+  /* Hamburger icon (mobile-only, CSS দিয়ে hide/show হয়) */
+  .menu-icon {
+    @apply text-2xl cursor-pointer hidden;
+    color: var(--accent);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑤ Theme Toggle Button
+   Desktop-এ navbar-এর পাশে, Mobile-এ nav menu-এর ভেতরে।
+══════════════════════════════════════════════════════════════ */
+
+  /* Desktop toggle button */
+  .theme-toggle {
+    @apply flex items-center justify-center w-10 h-10 rounded-full text-lg cursor-pointer ml-4;
+    background:  transparent;
+    border:      2px solid var(--accent);
+    color:       var(--accent);
+    transition:  all 0.3s ease;
+  }
+  .theme-toggle:hover {
+    background:  var(--accent);
+    color:       var(--accent-dark);
+    box-shadow:  0 0 15px var(--accent);
+  }
+
+  /* Mobile-এ nav menu-এর ভেতরে theme toggle */
+  .theme-toggle-mobile {
+    @apply hidden items-center mt-4 px-4 py-2 rounded-lg text-base cursor-pointer;
+    background:  transparent;
+    border:      2px solid var(--accent);
+    color:       var(--accent);
+    transition:  all 0.3s ease;
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑥ Home Section
+══════════════════════════════════════════════════════════════ */
+
+  .home-section {
+    @apply flex items-center justify-between min-h-screen px-[9%] pt-24;
+    background: var(--bg-primary);
+  }
+
+  .home-content h3 { @apply text-3xl font-bold; }
+  .home-content h3:first-of-type { margin-bottom: 0.3rem; }
+  .home-content h1 { @apply text-5xl font-bold leading-tight my-2; }
+  .home-content h3:last-of-type { margin-bottom: 1rem; }
+  .home-content h3 span { color: var(--accent); } /* typed text accent color */
+
+  .home-content p {
+    @apply text-base max-w-xl mt-2 mb-6 leading-relaxed;
+    color: var(--text-secondary);
+  }
+
+  /* Social Media Icons */
+  .social-media a {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-full border-2 text-xl mr-3;
+    border-color: var(--accent);
+    color:        var(--accent);
+    transition:   all 0.3s ease;
+  }
+  .social-media a:hover {
+    background:  var(--accent);
+    color:       var(--accent-dark);
+    box-shadow:  0 0 20px var(--accent);
+  }
+
+  /* Primary Button */
+  .btn {
+    @apply inline-block px-7 py-3 rounded-lg font-semibold text-base mt-6;
+    background:  var(--accent);
+    border:      2px solid var(--accent);
+    color:       var(--accent-dark);
+    transition:  all 0.3s ease;
+    letter-spacing: 0.05em;
+  }
+  .btn:hover {
+    background:  transparent;
+    color:       var(--accent);
+    box-shadow:  0 0 20px var(--accent);
+  }
+
+  /* Outline Button */
+  .btn-outline {
+    @apply inline-block px-7 py-3 rounded-lg font-semibold text-base mt-6;
+    background:  transparent;
+    border:      2px solid var(--accent);
+    color:       var(--accent);
+    transition:  all 0.3s ease;
+    letter-spacing: 0.05em;
+  }
+  .btn-outline:hover {
+    background:  var(--accent);
+    color:       var(--accent-dark);
+    box-shadow:  0 0 20px var(--accent);
+  }
+
+  /* Hero Image — circular frame with spinning rings */
+  .home-img { @apply flex justify-center items-center; }
+
+  .home-img .img-box {
+    @apply relative flex items-center justify-center;
+    width: 380px; height: 380px;
+  }
+
+  .home-img .img-box img {
+    width: 330px; height: 330px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
+    border:     4px solid var(--accent);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 50%, transparent);
+    position: relative; z-index: 1;
+  }
+
+  /* বাইরের ঘুরন্ত ring */
+  .home-img .img-box::before {
+    content: '';
+    position: absolute;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    border: 3px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    animation: spin 8s linear infinite;
+  }
+
+  /* ভেতরের ঘুরন্ত ring (বিপরীত দিকে) */
+  .home-img .img-box::after {
+    content: '';
+    position: absolute;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    border: 3px dashed color-mix(in srgb, var(--accent) 40%, transparent);
+    animation: spin 6s linear infinite reverse;
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑦ About Section
+══════════════════════════════════════════════════════════════ */
+
+  .about-section {
+    @apply flex items-center justify-between min-h-screen px-[9%] py-20;
+    background: var(--bg-secondary);
+  }
+
+  .about-img { @apply flex justify-center; }
+
+  .about-img img {
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
+    border:     4px solid var(--accent);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .about-content { @apply flex-1 ml-16; }
+
+  /* Section heading (সব section-এর জন্য shared) */
+  .heading {
+    @apply text-4xl font-bold text-center mb-12;
+    color: var(--text-primary);
+  }
+  .heading span { color: var(--accent); }
+
+  .about-content h3 { @apply text-2xl font-bold mb-2; }
+
+  .about-content p {
+    @apply leading-relaxed mb-6 text-base;
+    color: var(--text-secondary);
+  }
+
+  /* About stats row (Experience, Projects, Clients) */
+  .about-stats {
+    @apply flex gap-8 mt-6 mb-6;
+  }
+  .about-stat-box {
+    @apply text-center p-4 rounded-xl;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    min-width: 90px;
+  }
+  .about-stat-box h4 {
+    @apply text-2xl font-bold;
+    color: var(--accent);
+  }
+  .about-stat-box p {
+    @apply text-xs mb-0;
+    color: var(--text-muted);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑧ Stats / Counter Section
+   বড় animated numbers — Projects, Clients, Experience
+══════════════════════════════════════════════════════════════ */
+
+  .stats-section {
+    @apply px-[9%] py-16;
+    background: var(--bg-primary);
+  }
+
+  .stats-container {
+    @apply grid gap-8;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .stat-card {
+    @apply flex flex-col items-center justify-center text-center p-8 rounded-2xl;
+    background:  var(--bg-card);
+    border:      1px solid var(--border);
+    transition:  all 0.3s ease;
+  }
+  .stat-card:hover {
+    border-color: var(--accent);
+    box-shadow:   0 0 25px color-mix(in srgb, var(--accent) 25%, transparent);
+    transform:    translateY(-4px);
+  }
+
+  /* Counter icon */
+  .stat-card i {
+    @apply text-4xl mb-4;
+    color: var(--accent);
+  }
+
+  /* বড় animated number */
+  .stat-card .stat-number {
+    @apply text-5xl font-bold mb-1;
+    color:     var(--text-primary);
+    font-family: 'Poppins', monospace;
+  }
+
+  .stat-card .stat-label {
+    @apply text-sm font-medium;
+    color: var(--text-muted);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑨ Skills Section
+══════════════════════════════════════════════════════════════ */
+
+  .skills-section {
+    @apply px-[9%] py-20;
+    background: var(--bg-secondary);
+  }
+
+  .skills-container {
+    @apply grid gap-8;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .skill-item { @apply mb-2; }
+
+  .skill-label {
+    @apply flex justify-between mb-1 text-sm font-medium;
+    color: var(--text-primary);
+  }
+
+  /* Skill bar track (background) */
+  .skill-bar-bg {
+    @apply w-full h-3 rounded-full;
+    background: var(--bg-primary);
+  }
+
+  /* Skill bar fill — width JS দিয়ে animate হয় */
+  .skill-bar-fill {
+    @apply h-3 rounded-full;
+    position:    relative;           /* glowing dot-এর জন্য relative দরকার */
+    background:  var(--accent);
+    box-shadow:  0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
+    transition:  width 1.5s ease;
+  }
+
+  /* ── Skills Tab Buttons — Frontend / Backend / Tools ── */
+  .skills-tabs {
+    @apply flex flex-wrap justify-center gap-3 mb-10;
+  }
+  .skills-tab-btn {
+    @apply px-6 py-3 rounded-full font-semibold text-sm cursor-pointer;
+    background:   transparent;
+    border:       2px solid var(--border);
+    color:        var(--text-secondary);
+    transition:   all 0.3s ease;
+  }
+  /* active বা hover — accent style */
+  .skills-tab-btn:hover,
+  .skills-tab-btn.active {
+    background:   var(--accent);
+    border-color: var(--accent);
+    color:        var(--accent-dark);
+    box-shadow:   0 0 15px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  /* skill-label-এর ভেতরে icon+name span */
+  .skill-name {
+    @apply flex items-center;
+    color: var(--text-primary);
+  }
+  /* percentage number — ডান দিকে */
+  .skill-pct {
+    @apply font-bold text-sm;
+    color: var(--accent);
+  }
+
+  /* ── Tools & Technologies Badge Section ── */
+  .tools-section {
+    @apply mt-16 text-center;
+  }
+  .tools-heading {
+    @apply text-xl font-bold mb-8;
+    color: var(--text-primary);
+  }
+  /* Badge flex wrap grid */
+  .tools-grid {
+    @apply flex flex-wrap justify-center gap-4;
+  }
+  /* প্রতিটি badge — icon + name */
+  .tool-badge {
+    @apply flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold cursor-default;
+    background:  var(--bg-card);
+    border:      1px solid var(--border);
+    color:       var(--text-secondary);
+    transition:  all 0.3s ease;
+  }
+  /* hover করলে accent border + lift effect */
+  .tool-badge:hover {
+    border-color: var(--accent);
+    color:        var(--accent);
+    transform:    translateY(-3px);
+    box-shadow:   0 6px 20px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .tool-badge i {
+    @apply text-xl;
+    color:      var(--accent);
+    transition: transform 0.3s ease;
+  }
+  /* hover-এ icon ঘুরে একটু বড় হয় */
+  .tool-badge:hover i {
+    transform: rotate(15deg) scale(1.2);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑩ Services Section
+   — Flip Cards + Process Steps + CTA Banner
+══════════════════════════════════════════════════════════════ */
+
+  /* ══════════════════════════════════════════════
+     ServiceCardStack — scs- prefix
+  ══════════════════════════════════════════════ */
+
+  .scs-section { margin-bottom: 64px; }
+
+  .scs-eyebrow {
+    text-align: center; font-size: 12px;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 24px; opacity: 0.8;
+  }
+
+  .scs-wrapper {
+    display: flex; align-items: center; gap: 48px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 24px; padding: 44px 48px;
+    position: relative; outline: none; transition: box-shadow 0.3s ease;
+  }
+  .scs-wrapper:focus-visible {
+    box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(0,238,255,0.1);
+  }
+
+  .scs-info {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 0; position: relative;
+  }
+
+  .scs-counter {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    display: block; margin-bottom: 20px; font-weight: 600; transition: color 0.4s ease;
+  }
+
+  .scs-icon-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+
+  .scs-icon-circle {
+    width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.04); flex-shrink: 0;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .scs-icon-circle i { font-size: 20px; transition: color 0.4s ease; }
+
+  .scs-title {
+    font-size: 26px; font-weight: 700; color: var(--text-primary);
+    line-height: 1.2; margin: 0 0 4px; animation: scsFadeUp 0.45s ease both;
+  }
+  .scs-sub { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+
+  @keyframes scsFadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scs-tags {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px;
+    animation: scsFadeUp 0.5s 0.05s ease both;
+  }
+
+  .scs-tag {
+    font-size: 11px; padding: 4px 13px; border-radius: 20px;
+    border: 1px solid var(--border); color: var(--text-muted);
+    background: rgba(255,255,255,0.03); cursor: default;
+    transition: border-color 0.4s, color 0.4s;
+  }
+
+  .scs-progress-wrap { margin-bottom: 28px; }
+  .scs-progress-track {
+    width: 100%; height: 2px; background: rgba(255,255,255,0.08);
+    border-radius: 2px; overflow: hidden;
+  }
+  .scs-progress-fill {
+    height: 100%; border-radius: 2px; transition: width 0.9s ease, background 0.4s ease;
+  }
+  .scs-progress-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 8px; font-size: 11px; color: var(--text-muted);
+  }
+
+  .scs-hint {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 11px; color: var(--text-muted); opacity: 0.5;
+    animation: hintPulse 2.5s ease-in-out infinite;
+  }
+  .scs-mouse {
+    width: 16px; height: 26px; border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 10px; position: relative;
+  }
+  .scs-mouse-dot {
+    width: 3px; height: 5px; background: rgba(255,255,255,0.4);
+    border-radius: 2px; position: absolute; top: 4px; left: 50%;
+    transform: translateX(-50%); animation: dotScroll 1.8s ease-in-out infinite;
+  }
+
+  .scs-stack-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 20px; flex-shrink: 0;
+  }
+  .scs-stack { position: relative; width: 240px; height: 155px; }
+
+  .scs-card {
+    position: absolute; inset: 0; width: 240px; height: 155px;
+    border-radius: 20px; border: 1px solid; overflow: hidden;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    will-change: transform, opacity;
+  }
+  .scs-shine {
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    z-index: 2; pointer-events: none;
+  }
+  .scs-glow {
+    position: absolute; width: 120px; height: 120px; border-radius: 50%;
+    bottom: -36px; right: -28px; filter: blur(38px);
+    pointer-events: none; transition: opacity 0.5s ease;
+  }
+
+  .scs-card-inner {
+    position: relative; z-index: 1; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: space-between; padding: 18px 20px;
+  }
+  .scs-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .scs-card-brand {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; transition: color 0.4s;
+  }
+  .scs-card-circle {
+    width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid;
+    background: rgba(255,255,255,0.05);
+  }
+  .scs-card-dots {
+    font-size: 12px; color: rgba(255,255,255,0.35); letter-spacing: 2px; font-weight: 300;
+  }
+  .scs-card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+  .scs-card-sub { font-size: 11px; color: rgba(255,255,255,0.55); }
+  .scs-chip {
+    width: 32px; height: 24px; border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .scs-ripple-container {
+    position: absolute; inset: 0; overflow: hidden;
+    border-radius: 20px; pointer-events: none; z-index: 5;
+  }
+  .scs-ripple {
+    position: absolute; border-radius: 50%; background: rgba(255,255,255,0.12);
+    transform: scale(0); animation: scsRipple 0.55s ease-out forwards; pointer-events: none;
+  }
+  @keyframes scsRipple { to { transform: scale(4); opacity: 0; } }
+
+  .scs-dots { display: flex; gap: 7px; align-items: center; }
+  .scs-dot {
+    width: 7px; height: 7px; border-radius: 4px;
+    background: rgba(255,255,255,0.18); border: none; cursor: pointer;
+    transition: background 0.3s, width 0.3s, transform 0.3s; padding: 0;
+  }
+  .scs-dot:not(.scs-dot--active):hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
+
+  :root[data-theme="light"] .scs-wrapper { background: #ffffff; }
+  :root[data-theme="light"] .scs-card-dots { color: rgba(0,0,0,0.3); }
+  :root[data-theme="light"] .scs-card-sub  { color: rgba(0,0,0,0.5); }
+
+  @media (max-width: 768px) {
+    .scs-wrapper { flex-direction: column; padding: 32px 24px; gap: 36px; }
+    .scs-stack-wrap { order: -1; }
+    .scs-hint { display: none; }
+  }
+
+  .services-section {
+    @apply px-[9%] py-20;
+    background: var(--bg-primary);
+  }
+
+  /* Section subtitle — heading-এর নিচে ছোট text */
+  .section-subtitle {
+    @apply text-center text-sm mb-12 -mt-8;
+    color: var(--text-muted);
+  }
+
+  /* ── Service Cards Grid ── */
+  .services-grid {
+    @apply grid gap-8;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  }
+
+  /* ── Flip Card Container ──
+     perspective দিলে 3D depth তৈরি হয়।
+     perspective যত কম, flip তত dramatic দেখায়। */
+  .service-flip-container {
+    height:      320px;
+    perspective: 1000px; /* 3D space তৈরি করে */
+    cursor:      pointer;
+  }
+
+  /* ── Card Inner — এটাই rotate হয় ──
+     transform-style: preserve-3d → front ও back দুটো face ধরে রাখে 3D space-এ */
+  .service-flip-inner {
+    @apply relative w-full h-full;
+    transform-style: preserve-3d;
+    transition:      transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+  }
+
+  /* hover করলে inner 180° rotate → front চলে যায়, back আসে */
+  .service-flip-container:hover .service-flip-inner {
+    transform: rotateY(180deg);
+  }
+
+  /* ── দুটো face-এর common style ──
+     backface-visibility: hidden → যে face পেছনে আছে সেটা দেখা যাবে না */
+  .service-face {
+    @apply absolute inset-0 flex flex-col items-center justify-center text-center p-8 rounded-2xl;
+    backface-visibility: hidden; /* পেছনের face hide করে */
+    -webkit-backface-visibility: hidden;
+    background: var(--bg-card);
+    border:     2px solid var(--border);
+  }
+
+  /* ── Front Face ── */
+  .service-front {
+    /* front face সামনে থাকে (default) */
+  }
+  .service-front:hover ~ .service-flip-inner .service-back {
+    border-color: var(--accent);
+  }
+
+  /* Icon circle বক্স */
+  .service-icon-box {
+    @apply flex items-center justify-center w-20 h-20 rounded-full mb-5;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border:     2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    transition: all 0.3s ease;
+  }
+  .service-icon-box i {
+    @apply text-3xl;
+    color: var(--accent);
+  }
+  .service-flip-container:hover .service-icon-box {
+    background: var(--accent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+  .service-flip-container:hover .service-icon-box i {
+    color: var(--accent-dark);
+  }
+
+  .service-front h3 { @apply text-xl font-bold mb-3; }
+  .service-front p {
+    @apply text-sm leading-relaxed mb-4;
+    color: var(--text-secondary);
+  }
+
+  /* "Hover to see details" hint */
+  .flip-hint {
+    @apply text-xs;
+    color:   var(--text-muted);
+    opacity: 0.8;
+  }
+
+  /* ── Back Face ──
+     rotateY(180deg) দিয়ে উল্টো করে রাখা।
+     hover করলে inner 180° ঘুরলে এটা সোজা হয়ে দেখায়। */
+  .service-back {
+    transform:    rotateY(180deg); /* পেছনে উল্টো রাখা */
+    background:   linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 10%, var(--bg-card)),
+      var(--bg-card)
+    );
+    border-color: var(--accent);
+    box-shadow:   0 0 30px color-mix(in srgb, var(--accent) 20%, transparent);
+    gap:          0.6rem;
+  }
+
+  .service-back h3 {
+    @apply text-lg font-bold mb-3;
+    color: var(--accent);
+  }
+
+  /* Feature list */
+  .service-features {
+    @apply w-full text-left mb-5 list-none;
+  }
+  .service-features li {
+    @apply flex items-center gap-2 text-sm py-1;
+    color: var(--text-secondary);
+  }
+  .service-features li i {
+    color:     var(--accent);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Process Section — "How I Work" ── */
+  .process-section {
+    @apply mt-24;
+  }
+  .process-heading {
+    @apply text-2xl font-bold text-center mb-12;
+    color: var(--text-primary);
+  }
+
+  /* ৪ step-এর grid */
+  .process-grid {
+    @apply grid gap-6 relative;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .process-step {
+    @apply relative flex flex-col items-center text-center p-6 rounded-2xl;
+    background: var(--bg-card);
+    border:     1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .process-step:hover {
+    border-color: var(--accent);
+    transform:    translateY(-6px);
+    box-shadow:   0 10px 30px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  /* Background step number — বড় faded number */
+  .step-number {
+    @apply absolute text-7xl font-black opacity-5 select-none;
+    top:   -10px;
+    right: 10px;
+    color: var(--accent);
+  }
+
+  /* Step icon circle */
+  .step-icon {
+    @apply flex items-center justify-center w-16 h-16 rounded-full mb-4;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border:     2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .step-icon i {
+    @apply text-2xl;
+    color: var(--accent);
+  }
+
+  .process-step h4 { @apply text-base font-bold mb-2; }
+  .process-step p {
+    @apply text-xs leading-relaxed;
+    color: var(--text-secondary);
+  }
+
+  /* Step-এর মাঝে arrow (desktop-এ দেখায়) */
+  .step-arrow {
+    @apply absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex
+           items-center justify-center w-8 h-8 rounded-full text-sm;
+    background: var(--accent);
+    color:      var(--accent-dark);
+  }
+
+  /* ── CTA Banner ── */
+  .services-cta {
+    @apply flex flex-col items-center justify-center text-center mt-20 p-12 rounded-3xl;
+    background:  linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 8%, var(--bg-secondary)),
+      var(--bg-secondary)
+    );
+    border:     2px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .services-cta:hover {
+    border-color: var(--accent);
+    box-shadow:   0 0 40px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  .services-cta h3 {
+    @apply text-3xl font-bold mb-3;
+    color: var(--text-primary);
+  }
+  .services-cta p {
+    @apply text-base mb-8 max-w-md;
+    color: var(--text-secondary);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   ⑪ Experience / Timeline Section
+══════════════════════════════════════════════════════════════ */
+
+  .experience-section {
+    @apply px-[9%] py-20;
+    background: var(--bg-secondary);
+  }
+
+  /* Tab buttons — Experience | Education */
+  .exp-tabs {
+    @apply flex justify-center gap-4 mb-12;
+  }
+  .exp-tab-btn {
+    @apply px-8 py-3 rounded-full font-semibold text-base cursor-pointer;
+    background:  transparent;
+    border:      2px solid var(--accent);
+    color:       var(--accent);
+    transition:  all 0.3s ease;
+  }
+  .exp-tab-btn.active,
+  .exp-tab-btn:hover {
+    background:  var(--accent);
+    color:       var(--accent-dark);
+    box-shadow:  0 0 15px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  /* Timeline container — vertical line বাম দিকে */
+  .timeline {
+    @apply relative max-w-3xl mx-auto;
+  }
+  .timeline::before {
+    content:    '';
+    position:   absolute;
+    left:       20px;
+    top:        0;
+    bottom:     0;
+    width:      2px;
+    background: var(--border);
+  }
+
+  /* Timeline item */
+  .timeline-item {
+    @apply relative pl-16 pb-10;
+  }
+
+  /* Timeline dot — vertical line-এর উপর */
+  .timeline-dot {
+    position:   absolute;
+    left:       11px;
+    top:        6px;
+    width:      18px;
+    height:     18px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  /* Timeline card */
+  .timeline-card {
+    @apply p-6 rounded-2xl;
+    background:  var(--bg-card);
+    border:      1px solid var(--border);
+    transition:  all 0.3s ease;
+  }
+  .timeline-card:hover {
+    border-color: var(--accent);
+    transform:    translateX(8px);
+  }
+
+  .timeline-card .year {
+    @apply text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color:      var(--accent);
+  }
+  .timeline-card h3 { @apply text-lg font-bold mb-1; }
+  .timeline-card h4 {
+    @apply text-sm font-medium mb-3;
+    color: var(--accent);
+  }
+  .timeline-card p {
+    @apply text-sm leading-relaxed;
+    color: var(--text-secondary);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   Portfolio Section — Filter + Cards + Modal
+══════════════════════════════════════════════════════════════ */
+
+  .portfolio-section {
+    @apply px-[9%] py-20;
+    background: var(--bg-primary);
+  }
+
+  /* ── Filter Buttons ── */
+  .portfolio-filters {
+    @apply flex flex-wrap justify-center gap-3 mb-10;
+  }
+  .filter-btn {
+    @apply flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold cursor-pointer;
+    background:   transparent;
+    border:       2px solid var(--border);
+    color:        var(--text-secondary);
+    transition:   all 0.3s ease;
+  }
+  .filter-btn:hover,
+  .filter-btn.active {
+    background:   var(--accent);
+    border-color: var(--accent);
+    color:        var(--accent-dark);
+    box-shadow:   0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  /* Filter button-এর ভেতরে project count badge */
+  .filter-count {
+    @apply inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold;
+    background: color-mix(in srgb, currentColor 20%, transparent);
+  }
+
+  /* ── Cards Grid ── */
+  .portfolio-container {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .portfolio-box {
+    @apply relative overflow-hidden rounded-2xl cursor-pointer;
+    background: var(--bg-card);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .portfolio-box:hover {
+    transform:  translateY(-6px);
+    box-shadow: 0 20px 40px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .portfolio-box img {
+    @apply w-full block;
+    height:     240px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .portfolio-box:hover img { transform: scale(1.08); }
+
+  /* Card উপর বাম কোণে category badge */
+  .project-badge {
+    @apply absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold z-10;
+    background:      color-mix(in srgb, var(--accent) 90%, transparent);
+    color:           var(--accent-dark);
+    backdrop-filter: blur(4px);
+  }
+
+  /* ── Hover Overlay ── */
+  .portfolio-layer {
+    @apply absolute inset-0 flex flex-col items-center justify-center text-center p-6 opacity-0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--bg-primary) 95%, transparent),
+      color-mix(in srgb, var(--accent) 80%, transparent)
+    );
+    transition: opacity 0.4s ease;
+  }
+  .portfolio-box:hover .portfolio-layer { opacity: 1; }
+
+  .portfolio-layer h4 { @apply font-bold text-xl mb-2; color: #fff; }
+  .portfolio-layer p  { @apply text-sm mb-5 leading-relaxed; color: rgba(255,255,255,0.85); }
+
+  /* Overlay action buttons (Eye / Link / GitHub) */
+  .portfolio-actions { @apply flex gap-3; }
+
+  .p-action-btn {
+    @apply flex items-center justify-center w-11 h-11 rounded-full text-lg border-2;
+    background:      rgba(255,255,255,0.15);
+    border-color:    rgba(255,255,255,0.5);
+    color:           #fff;
+    backdrop-filter: blur(4px);
+    transition:      all 0.3s ease;
+    cursor:          pointer;
+  }
+  .p-action-btn:hover {
+    background:   var(--accent);
+    border-color: var(--accent);
+    color:        var(--accent-dark);
+    transform:    scale(1.15);
+    box-shadow:   0 0 15px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   Project Detail Modal
+══════════════════════════════════════════════════════════════ */
+
+  /* Full-screen backdrop */
+  .modal-backdrop {
+    @apply fixed inset-0 flex items-center justify-center z-[1000] p-4;
+    background:      rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px);
+    animation:       fadeIn 0.25s ease;
+  }
+
+  /* Modal box */
+  .modal-box {
+    @apply relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl;
+    background: var(--bg-card);
+    border:     2px solid var(--border);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    animation:  slideUp 0.3s ease;
+  }
+
+  /* Close button */
+  .modal-close {
+    @apply absolute top-4 right-4 z-10 flex items-center justify-center
+           w-10 h-10 rounded-full text-lg cursor-pointer;
+    background:      rgba(0,0,0,0.5);
+    border:          2px solid var(--border);
+    color:           #fff;
+    backdrop-filter: blur(4px);
+    transition:      all 0.3s ease;
+  }
+  /* hover-এ close button ঘোরে */
+  .modal-close:hover {
+    background:   var(--accent);
+    border-color: var(--accent);
+    color:        var(--accent-dark);
+    transform:    rotate(90deg);
+  }
+
+  /* Modal image */
+  .modal-img { @apply relative; }
+  .modal-img img {
+    @apply w-full rounded-t-3xl;
+    height:     260px;
+    object-fit: cover;
+  }
+  .modal-badge {
+    @apply absolute bottom-4 left-4 px-4 py-1 rounded-full text-sm font-bold;
+    background: var(--accent);
+    color:      var(--accent-dark);
+  }
+
+  /* Modal text content */
+  .modal-content { @apply p-8; }
+  .modal-content h3 { @apply text-2xl font-bold mb-3; color: var(--text-primary); }
+  .modal-desc {
+    @apply text-sm leading-relaxed mb-6;
+    color: var(--text-secondary);
+  }
+
+  /* Tech stack */
+  .modal-tech       { @apply mb-6; }
+  .modal-tech h4    { @apply text-base font-bold mb-3; color: var(--text-primary); }
+  .tech-badges      { @apply flex flex-wrap gap-2; }
+  .tech-badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold;
+    background:  color-mix(in srgb, var(--accent) 12%, transparent);
+    border:      1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    color:       var(--accent);
+  }
+
+  /* Action buttons */
+  .modal-actions { @apply flex gap-4 flex-wrap; }
+
+/* ══════════════════════════════════════════════════════════════
+   Testimonials Section
+   Client review cards — auto-scroll slider
+══════════════════════════════════════════════════════════════ */
+
+  .testimonials-section {
+    @apply px-[9%] py-20;
+    background: var(--bg-secondary);
+  }
+
+  /* Slider wrapper — overflow hidden করে শুধু active card দেখায় */
+  .testimonials-slider {
+    @apply relative max-w-3xl mx-auto;
+    overflow: hidden;
+  }
+
+  /* সব card একসাথে এক row-এ রাখা হয়, JS দিয়ে translateX করে slide হয় */
+  .testimonials-track {
+    @apply flex;
+    transition: transform 0.5s ease;
+  }
+
+  /* প্রতিটি testimonial card */
+  .testimonial-card {
+    @apply flex-shrink-0 w-full p-8 rounded-2xl text-center;
+    background: var(--bg-card);
+    border:     1px solid var(--border);
+  }
+
+  /* Client photo */
+  .testimonial-img {
+    @apply w-20 h-20 rounded-full object-cover mx-auto mb-4;
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  /* Star rating */
+  .testimonial-stars {
+    @apply flex justify-center gap-1 mb-3;
+    color: #fbbf24; /* gold color */
+    font-size: 1.1rem;
+  }
+
+  .testimonial-card p {
+    @apply text-base leading-relaxed mb-5 italic;
+    color: var(--text-secondary);
+  }
+
+  .testimonial-card h4 { @apply font-bold text-lg; }
+
+  .testimonial-card span {
+    @apply text-sm;
+    color: var(--accent);
+  }
+
+  /* Dot navigation */
+  .testimonial-dots {
+    @apply flex justify-center gap-2 mt-6;
+  }
+
+  .testimonial-dot {
+    @apply w-3 h-3 rounded-full cursor-pointer;
+    background:  var(--text-muted);
+    transition:  all 0.3s ease;
+  }
+
+  /* active dot একটু বড় এবং accent color */
+  .testimonial-dot.active {
+    background: var(--accent);
+    width: 28px; /* active dot longer pill shape */
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  /* Prev/Next arrow buttons */
+  .testimonial-arrow {
+    @apply absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-10;
+    background:  var(--bg-card);
+    border:      2px solid var(--accent);
+    color:       var(--accent);
+    transition:  all 0.3s ease;
+  }
+  .testimonial-arrow:hover {
+    background:  var(--accent);
+    color:       var(--accent-dark);
+  }
+  .testimonial-arrow.prev { left: -20px; }
+  .testimonial-arrow.next { right: -20px; }
+
+/* ══════════════════════════════════════════════════════════════
+   Contact Section — Form + Validation + Info Cards
+══════════════════════════════════════════════════════════════ */
+
+  .contact-section {
+    @apply px-[9%] py-20;
+    background: var(--bg-secondary);
+  }
+
+  /* ── Availability Badge — blinking green dot ── */
+  .availability-badge {
+    @apply flex items-center justify-center gap-2 text-sm font-semibold mb-12 -mt-8;
+    color: var(--text-secondary);
+  }
+  /* Blinking green dot */
+  .avail-dot {
+    @apply inline-block w-2.5 h-2.5 rounded-full;
+    background: #22c55e;
+    animation:  blink-dot 1.5s ease-in-out infinite;
+  }
+
+  /* ── Two-column layout ── */
+  .contact-container {
+    @apply flex flex-wrap gap-12 justify-between items-start;
+  }
+
+  /* LEFT — Form */
+  .contact-form {
+    @apply flex-1;
+    min-width: 300px;
+  }
+
+  /* ── Two-column row for paired inputs ── */
+  .form-row {
+    @apply grid gap-4 mb-0;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Wrapper for each field + error message */
+  .form-group { @apply mb-4; }
+
+  /* All inputs + textarea */
+  .contact-form input,
+  .contact-form textarea {
+    @apply w-full block text-sm p-4 rounded-xl outline-none;
+    background:  var(--bg-card);
+    color:       var(--text-primary);
+    border:      2px solid transparent;
+    resize:      none;
+    transition:  border-color 0.3s, box-shadow 0.3s;
+  }
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    border-color: var(--accent);
+    box-shadow:   0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  /* Error state — লাল border */
+  .contact-form input.input-error,
+  .contact-form textarea.input-error {
+    border-color: #f87171;
+  }
+
+  .contact-form input::placeholder,
+  .contact-form textarea::placeholder { color: var(--text-muted); }
+
+  /* Field error message */
+  .field-error {
+    @apply block text-xs mt-1;
+    color: #f87171;
+  }
+
+  /* Character counter row — error বাম দিকে, count ডান দিকে */
+  .char-counter {
+    @apply flex justify-between items-center mt-1 text-xs;
+  }
+
+  /* Submit button — full width */
+  .contact-submit-btn {
+    @apply w-full flex items-center justify-center mt-2;
+  }
+
+  /* ── Success State ── */
+  .form-success {
+    @apply flex flex-col items-center justify-center text-center p-12 rounded-2xl;
+    background: var(--bg-card);
+    border:     2px solid var(--accent);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .form-success i {
+    @apply text-6xl mb-4;
+    color: #22c55e; /* green checkmark */
+  }
+  .form-success h3 { @apply text-2xl font-bold mb-2; }
+  .form-success p  { color: var(--text-secondary); }
+
+  /* RIGHT — Info */
+  .contact-info {
+    @apply flex-1;
+    min-width: 280px;
+  }
+  .contact-info h3 { @apply text-3xl font-bold mb-3; }
+  .contact-info > p {
+    @apply text-sm leading-relaxed mb-8;
+    color: var(--text-secondary);
+  }
+
+  /* ── Info Cards — Email, Phone, Location, Hours ── */
+  .info-cards { @apply flex flex-col gap-4 mb-8; }
+
+  .info-card {
+    @apply flex items-center gap-4 p-4 rounded-xl;
+    background:  var(--bg-card);
+    border:      1px solid var(--border);
+    transition:  all 0.3s ease;
+  }
+  .info-card:hover {
+    border-color: var(--accent);
+    transform:    translateX(6px);
+  }
+
+  /* Icon circle */
+  .info-icon {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .info-icon i { @apply text-xl; color: var(--accent); }
+
+  /* Label above value */
+  .info-label {
+    @apply block text-xs font-semibold mb-0.5;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .info-value {
+    @apply block text-sm font-medium;
+    color:      var(--text-primary);
+    transition: color 0.2s;
+  }
+  a.info-value:hover { color: var(--accent); }
+
+  /* Social links row */
+  .contact-socials { @apply mt-2; }
+  .social-label {
+    @apply text-xs font-semibold mb-3;
+    color:          var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   Footer — New Full Layout
+══════════════════════════════════════════════════════════════ */
+
+  .footer-main {
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Top section — brand + nav columns ── */
+  .footer-top {
+    @apply flex flex-wrap gap-12 px-[9%] py-16;
+  }
+
+  /* Brand column — logo + tagline + social */
+  .footer-brand {
+    @apply flex-1;
+    min-width: 240px;
+  }
+
+  .footer-tagline {
+    @apply text-sm leading-relaxed mt-3 mb-6 max-w-xs;
+    color: var(--text-secondary);
+  }
+
+  /* Footer social icons */
+  .footer-social { @apply flex gap-3 flex-wrap; }
+  .footer-social a {
+    @apply inline-flex items-center justify-center w-9 h-9 rounded-lg text-base;
+    background:  var(--bg-card);
+    border:      1px solid var(--border);
+    color:       var(--text-secondary);
+    transition:  all 0.3s ease;
+  }
+  .footer-social a:hover {
+    background:   var(--accent);
+    border-color: var(--accent);
+    color:        var(--accent-dark);
+    transform:    translateY(-3px);
+    box-shadow:   0 6px 15px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  /* Nav + Services columns */
+  .footer-nav { min-width: 160px; }
+
+  .footer-nav h4 {
+    @apply text-sm font-bold mb-5 uppercase tracking-widest;
+    color: var(--accent);
+  }
+
+  .footer-nav ul { @apply list-none flex flex-col gap-3; }
+
+  .footer-nav a {
+    @apply text-sm flex items-center;
+    color:      var(--text-secondary);
+    transition: all 0.2s ease;
+  }
+  .footer-nav a:hover {
+    color:           var(--accent);
+    padding-left:    4px;
+  }
+  .footer-nav a i { color: var(--accent); opacity: 0.6; }
+
+  /* ── Bottom bar — copyright + back-to-top ── */
+  .footer-bottom {
+    @apply flex flex-wrap items-center justify-between gap-4 px-[9%] py-5;
+    background:  var(--bg-secondary);
+    border-top:  1px solid var(--border);
+  }
+
+  .footer-copy {
+    @apply text-sm;
+    color: var(--text-muted);
+  }
+  .footer-copy span { color: var(--accent); font-weight: 600; }
+
+  .footer-made {
+    @apply text-xs;
+    color: var(--text-muted);
+  }
+
+  /* Back to top button */
+  .back-to-top {
+    @apply flex items-center justify-center w-10 h-10 rounded-xl text-xl cursor-pointer;
+    background:  var(--accent);
+    color:       var(--accent-dark);
+    border:      none;
+    transition:  all 0.3s ease;
+  }
+  .back-to-top:hover {
+    transform:  translateY(-4px);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   Typed Text Animation
+══════════════════════════════════════════════════════════════ */
+
+  .typed-text { color: var(--accent); }
+
+  /* Blinking cursor */
+  .cursor {
+    display:        inline-block;
+    width:          3px;
+    height:         1em;
+    background:     var(--accent);
+    margin-left:    3px;
+    animation:      blink 0.7s step-end infinite;
+    vertical-align: middle;
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   Scroll Reveal Animation
+   .reveal class দেওয়া element গুলো initially hidden থাকে।
+   IntersectionObserver .active class যোগ করলে visible হয়।
+══════════════════════════════════════════════════════════════ */
+
+  .reveal {
+    opacity:    0;
+    transform:  translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.active {
+    opacity:   1;
+    transform: translateY(0);
+  }
+
+  /* JS লোড না হলেও যেন blank না দেখায় — fallback */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity:   1;
+      transform: none;
+    }
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   Responsive — Mobile (max-width: 991px)
+══════════════════════════════════════════════════════════════ */
+
+  @media (max-width: 991px) {
+    .header { padding: 1.4rem 4%; }
+
+    /* Mobile nav — right side থেকে slide করে আসে */
+    .navbar {
+      @apply fixed flex-col top-0 right-0 h-full w-[300px] pt-24 px-10 z-50;
+      background:  var(--bg-secondary);
+      transform:   translateX(100%);
+      transition:  transform 0.3s ease;
+      box-shadow: -5px 0 20px var(--shadow);
+    }
+    .navbar.open { transform: translateX(0); }
+
+    .navbar a { @apply ml-0 mb-6 text-lg; display: block; }
+
+    /* Mobile-এ theme toggle nav-এর ভেতরে দেখায় */
+    .theme-toggle-mobile { @apply flex; }
+
+    /* Desktop theme toggle mobile-এ hide */
+    .theme-toggle { display: none; }
+
+    .menu-icon { @apply block; }
+
+    /* Home section — mobile-এ image উপরে, text নিচে */
+    .home-section  { @apply flex-col-reverse pt-32 pb-10 text-center; }
+    .home-content  { @apply mt-8; }
+    .home-content p { @apply mx-auto; }
+
+    .home-img .img-box         { width: 280px; height: 280px; }
+    .home-img .img-box img     { width: 240px; height: 240px; }
+    .home-img .img-box::before { width: 280px; height: 280px; }
+    .home-img .img-box::after  { width: 250px; height: 250px; }
+
+    .social-media { @apply justify-center flex; }
+
+    /* About — mobile-এ stack layout */
+    .about-section  { @apply flex-col text-center; }
+    .about-content  { @apply ml-0 mt-8; }
+    .about-stats    { @apply justify-center; }
+
+    /* Timeline */
+    .testimonial-arrow.prev { left: 0; }
+    .testimonial-arrow.next { right: 0; }
+
+    .contact-container { @apply flex-col; }
+    .form-row          { @apply grid-cols-1; }
+    .footer-top        { @apply flex-col gap-8 py-10; }
+    .footer-bottom     { @apply flex-col text-center; }
+  }
+
+  @media (max-width: 617px) {
+    .home-content h1 { font-size: 2.2rem; }
+    .heading         { font-size: 2rem; }
+    .stat-card .stat-number { font-size: 2.5rem; }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Global @keyframes — @layer এর বাইরে রাখা হয়েছে
+   কারণ: PostCSS / Tailwind 3 @layer-এর ভেতরে
+   @keyframes সঠিকভাবে process করতে পারে না।
+   এখানে define করলে সব browser-এ কাজ করে।
+══════════════════════════════════════════════════════════════ */
+
+/* Hero image-এর ঘুরন্ত ring */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Cursor blinking (Home typed text) */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Portfolio / Modal backdrop fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal box slide up করে আসে */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* Contact section availability dot blinking */
+@keyframes blink-dot {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+  50%       { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+
+/* Home scroll-down arrow bouncing */
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(10px); }
+}
