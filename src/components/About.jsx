@@ -249,7 +249,7 @@ export default function About() {
           </div>
 
           {/* CTA Button */}
-          <a href="https://canva.link/otv0lb7oudwvz2q" className="btn" target="_blank" rel="noopener noreferrer">
+          <a href="https://drive.google.com/file/d/1bTzK-NEsyCNLace6hPM4VVyHm384qLSB/view?usp=drive_link">
             <i className="fas fa-download" style={{ marginRight: '8px' }} />
             Download CV
           </a>
