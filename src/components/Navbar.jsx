@@ -145,6 +145,18 @@ export default function Navbar() {
         {/* ── Nav Links ──
             active link-এ 'active' class যায় → cyan color হয়। */}
         <nav className={`navbar${menuOpen ? ' open' : ''}`}>
+
+          {/* ── Mobile Close Button ──
+              mobile menu-এর উপরে right side-এ X button।
+              click করলে menu বন্ধ হয়। */}
+          <button
+            className="menu-close-btn"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <i className="fas fa-times" />
+          </button>
+
           {NAV_LINKS.map((link) => (
             <a
               key={link}
