@@ -1608,7 +1608,7 @@
     border: none;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-color, #fff);
+    color: var(--text-color, #4ae84a);
     font-size: 1.1rem;
     cursor: pointer;
     transition: background 0.2s;
